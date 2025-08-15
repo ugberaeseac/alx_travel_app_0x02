@@ -1,14 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from .models import User, Listing, Booking, Review
+from .models import User, Listing, Booking, Review, Payment
 from datetime import datetime
-
-
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(min_length=8, max_length=50, write_only=True)
-    class Meta:
-        model = User
-        fields = '__all__'
 
 
 
@@ -28,6 +21,16 @@ class BookingSerializer(serializers.ModelSerializer):
 
 
 
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(min_length=8, max_length=50, write_only=True)
+    #bookings = BookingSerializer(many=True, read_only=True)
+    class Meta:
+        model = User
+        fields = ('user_id', 'first_name', 'last_name', 'username', 'password', 'email', 'phone', 'role', 'date_joined')
+        #fields = '__all__'
+
+
+
 class ListingSerializer(serializers.ModelSerializer):
     bookings = BookingSerializer(many=True, read_only=True)
     class Meta:
@@ -38,6 +41,7 @@ class ListingSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise ValidationError({'detail': 'The maximum number of guest must be greater than 0'})
         return value
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -52,3 +56,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ('txn_id', 'booking', 'amount', 'gateway', 'paid', 'status', 'txn_ref')
+        read_only_fields = ('txn_ref', 'paid', 'status')

@@ -16,6 +16,13 @@ class BookingChoice(models.TextChoices):
     CANCELLED = 'Cancelled'
 
 
+class PaymentChoice(models.TextChoices):
+    PENDING = 'Pending'
+    COMPLETED = 'Completed'
+    FAILED = 'Failed'
+    CANCELLED = 'Cancelled'
+
+
 class User(AbstractUser):
     user_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
     first_name = models.CharField(max_length=100, null=False, blank=False)
@@ -58,7 +65,7 @@ class Booking(models.Model):
     check_in = models.DateTimeField() #start_date
     check_out = models.DateTimeField() #end_date
     #total_price = models.DecimalField(max_digits=10, decimal_places=2, null=False)
-    status = models.CharField(max_length=10, choices=BookingChoice.choices, default=BookingChoice.PENDING)
+    status = models.CharField(max_length=10, choices=BookingChoice.choices)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -91,3 +98,18 @@ class Review(models.Model):
 
 
 
+class Payment(models.Model):
+    txn_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    gateway = models.CharField(max_length=100, null=False, blank=False)
+    paid = models.BooleanField(default=False)
+    status = models.CharField(max_length=10, choices=PaymentChoice.choices, default=PaymentChoice.PENDING)
+    txn_ref = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+
+
+    def __str__(self):
+        verdict = "PAID" if self.paid else "UNPAID"
+        return f'Payment for {booking} - ({verdict})'

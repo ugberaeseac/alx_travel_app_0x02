@@ -136,3 +136,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'listings.User'
 CORS_ALLOW_ALL_ORIGINS = True
+
+CHAPA_SECRET_KEY=os.environ.get('CHAPA_SECRET_KEY')
